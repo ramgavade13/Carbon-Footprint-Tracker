@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard-header">
+    <h1>Welcome, {{ name }}!</h1>
+    <p>Your personalized dashboard. Log your activities below and watch your footprint shrink.</p>
+</div>
+
+<div class="dashboard-grid">
+    <div class="glass-card input-section">
+        <h2>Log Activity</h2>
+        <br>
+        <form id="log-form">
+            <div class="input-group">
+                <label>Activity Type</label>
+                <select id="activity_type" name="activity_type">
+                    <option value="electricity">Home Electricity</option>
+                    <option value="transport">Transport (Car)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Value</label>
+                <input type="number" id="value" name="value" step="0.01" placeholder="e.g. 50" required>
+            </div>
+            <div class="input-group" id="unit-group">
+                <label>Unit</label>
+                <input type="text" id="unit" name="unit" value="kWh" readonly style="background: rgba(0,0,0,0.4); cursor: not-allowed;">
+            </div>
+            <button type="submit" class="btn-large" id="submit-btn" style="margin-top: 10px;">Calculate & Log Event</button>
+        </form>
+        <div id="result-message" style="margin-top: 15px; font-weight: 600;"></div>
+    </div>
+
+    <div class="glass-card chart-section">
+        <h2>Historical Footprint</h2>
+        <canvas id="footprintChart" style="margin-top: 20px;"></canvas>
+    </div>
+</div>
+
+<script>
+    const typeSelect = document.getElementById('activity_type');
+    const unitInput = document.getElementById('unit');
+    const form = document.getElementById('log-form');
+    const resultMsg = document.getElementById('result-message');
+    let chartInstance = null;
+
+    typeSelect.addEventListener('change', (e) => {
+        if(e.target.value === 'electricity') {
+            unitInput.value = 'kWh';
+        } else if (e.target.value === 'transport') {
+            unitInput.value = 'km';
+        }
+    });
+
+    async function loadChartData() {
+        const res = await fetch('/api/history');
+        const data = await res.json();
+        
+        const labels = data.map((d, index) => `Log ${index + 1} (${d.activity_type})`);
+        const values = data.map(d => d.carbon_emission);
+
+        const ctx = document.getElementById('footprintChart').getContext('2d');
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Carbon Emission (kg CO2e)',
+                    data: values,
+                    backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#e2e8f0'}
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    y: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        btn.textContent = 'Calculating...';
+        btn.style.opacity = '0.7';
+        
+        const payload = {
+            activity_type: typeSelect.value,
+            value: document.getElementById('value').value,
+            unit: unitInput.value
+        };
+
+        const res = await fetch('/api/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        btn.textContent = 'Calculate & Log Event';
+        btn.style.opacity = '1';
+        
+        if(data.success) {
+            resultMsg.innerHTML = data.message_html;
+            resultMsg.style.color = '#4ade80';
+            loadChartData(); 
+            // Only reset value, keep activity type user preferred
+            document.getElementById('value').value = '';
+        }
+    });
+
+    // Initial load
+    loadChartData();
+</script>
+{% endblock %}

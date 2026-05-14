@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}EcoTrack - Personalized Carbon Footprint Tracker{% endblock %}
+{% block content %}
+<div class="hero">
+    <div class="hero-content">
+        <h1>Track, Understand, and Reduce Your Carbon Emissions</h1>
+        <p>EcoTrack is a beautiful, intuitive tool to help individuals calculate the impact of their daily activities from electricity use to transport. Small steps make a huge difference.</p>
+        <a href="{{ url_for('auth') }}" class="btn-large" style="width: auto;">Start Tracking Today</a>
+    </div>
+    <div class="hero-graphic">
+        <div class="glass-card mockup">
+            <h3>Recent Activity Insights</h3>
+            <div style="margin-top:20px;">
+                <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:5px;">Home Electricity - 142 kg CO2</p>
+                <div class="mock-bar" style="width: 80%; background: #4ade80;"></div>
+            </div>
+            <div style="margin-top:15px;">
+                <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:5px;">Transport (Petrol) - 86 kg CO2</p>
+                <div class="mock-bar" style="width: 50%; background: #3b82f6;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features">
+    <div class="feature-card glass-card">
+        <h2>🔌 Electricity</h2>
+        <p>Calculate emissions based on your home kWh usage and discover ways to optimize energy consumption.</p>
+    </div>
+    <div class="feature-card glass-card">
+        <h2>🚗 Transport</h2>
+        <p>Log your car journeys or public transit to see real-time kg CO2e metrics for your travel.</p>
+    </div>
+    <div class="feature-card glass-card">
+        <h2>📊 Visualization</h2>
+        <p>Understand your historical data with dynamic graphs, making tracking engaging and rewarding.</p>
+    </div>
+</div>
+{% endblock %}

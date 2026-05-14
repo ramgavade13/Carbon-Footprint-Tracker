@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card glass-card">
+        <h2>Welcome Back</h2>
+        <form method="POST" action="/auth" id="login-form">
+            <input type="hidden" name="action" value="login">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-large">Log In</button>
+            <p class="switch-form">Don't have an account? <span onclick="toggleAuth()">Sign up here</span></p>
+        </form>
+
+        <form method="POST" action="/auth" id="register-form" style="display: none;">
+            <input type="hidden" name="action" value="register">
+            <div class="input-group">
+                <label>Account Type</label>
+                <select name="account_type" id="account_type_select" onchange="toggleCompany(this)">
+                    <option value="personal">Personal individual</option>
+                    <option value="company">Organization / Company</option>
+                </select>
+            </div>
+            <div class="input-group" id="company_group" style="display: none;">
+                <label>Company Name</label>
+                <input type="text" name="company_name" id="company_input">
+            </div>
+            <div class="input-group">
+                <label>Name</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-large">Create Account</button>
+            <p class="switch-form">Already have an account? <span onclick="toggleAuth()">Log in here</span></p>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleAuth() {
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const title = document.querySelector('.auth-card h2');
+        
+        if (loginForm.style.display === 'none') {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            title.textContent = 'Welcome Back';
+        } else {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            title.textContent = 'Create an Account';
+        }
+    }
+
+    function toggleCompany(select) {
+        const companyGroup = document.getElementById('company_group');
+        const companyInput = document.getElementById('company_input');
+        if (select.value === 'company') {
+            companyGroup.style.display = 'block';
+            companyInput.required = true;
+        } else {
+            companyGroup.style.display = 'none';
+            companyInput.required = false;
+            companyInput.value = '';
+        }
+    }
+</script>
+{% endblock %}
